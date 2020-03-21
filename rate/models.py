@@ -1,5 +1,6 @@
 
 from django.db import models
+from django.db.models import Manager
 
 # Create your models here.
 
@@ -15,15 +16,14 @@ class Employee(models.Model):
     is_blocked=models.BooleanField(default=False)
     block_date=models.DateTimeField(blank=True,null=True)
 
+    objects=Manager()
+
 
 class Courses(models.Model):
     course_id=models.CharField(max_length=6)
     course_description=models.CharField(max_length=200)
     course_department=models.CharField(max_length=50)
-    course_difficulty=models.IntegerField()
-    course_workload=models.IntegerField()
-    course_content_rating=models.IntegerField()
-    course_review=models.CharField(max_length=200)
+    
 
     def __str__(self):
         return(self.course_id)
@@ -38,30 +38,49 @@ class Professors(models.Model):
     def __str__(self):
         return(self.prof_name)
 
+
+
+   
+
+
+
+    
+
+class CourseRating(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,related_name='course_urate')
+    course_own=models.ForeignKey(Courses, on_delete=models.CASCADE,related_name="course_r")
+    course_difficulty_own=models.IntegerField()
+    course_workload_own=models.IntegerField()
+    course_content_rating_own=models.IntegerField()
+    
+
 class ProfRating(models.Model):
-    prof_name=models.ForeignKey(Professors, on_delete=models.CASCADE)
-    punctuality=models.IntegerField()
-    grading=models.IntegerField()
-    strictness=models.IntegerField()
-    teaching_skill=models.IntegerField()
-    enthusiasmInTeaching=models.IntegerField()
-    overall=models.IntegerField()
-    review=models.CharField(max_length=200,blank=True,default="")
+    user = models.ForeignKey(User, on_delete=models.CASCADE,related_name='prof_urate')
+    prof_own=models.ForeignKey(Professors, on_delete=models.CASCADE,related_name="prof_r")
+    prof_puntuality_own=models.IntegerField()
+    prof_grading_own=models.IntegerField()
+    prof_strictness_rating_own=models.IntegerField()
+    prof_teaching_skill_own=models.IntegerField()
+    prof_enthusiasm_own=models.IntegerField()
+    prof_overall_own=models.IntegerField()
+    
+class ProfReview(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,related_name='prof_urev')
+    prof_review_own=models.CharField(blank=True,max_length=200)
+    prof_review_reiability=models.IntegerField(default=0)
+    anonymous=models.BooleanField(default=False)
+
+class CourseReview(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,related_name='course_urev')
+    course_review_own=models.CharField(blank=True,max_length=200)
+    course_review_reiability=models.IntegerField(default=0)
+    anonymous=models.BooleanField(default=False)
+
+class Prof_to_subj(models.Model):
+    professor=models.ForeignKey(Professors, on_delete=models.CASCADE)
+    subject=models.ForeignKey(Courses, on_delete=models.CASCADE)
+    rating_of_subj=models.IntegerField(blank=True,null=True)
 
     def __str__(self):
-        return self.overall
-
-
-class TaughtBy(models.Model):
-    prof_name=models.ForeignKey(Professors, on_delete=models.CASCADE,related_name="prof")
-    course_id=models.ForeignKey(Courses, on_delete=models.CASCADE,related_name="course")
-    rating=models.IntegerField()
-    review=models.CharField(max_length=200,blank=True,default="")
-    def __str__(self):
-        return (self.prof_name.prof_name+" teaches " +  self.course_id.course_id)
-
-
-
-
-
+        return self.professor.prof_name + " teaches " + self.subject.course_id 
     

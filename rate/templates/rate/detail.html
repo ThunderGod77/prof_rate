@@ -1,0 +1,60 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'rate/bootstrap.min.css' %}">
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body class="content">
+    <div class="">
+    
+        <h2>{{a.prof_name}}</h2>
+        
+        <p>{{a.prof_deparment}}</p>
+        <p>{{a.prof_research_interest}}</p>
+        
+        {% for i in b%}
+        <p>{{i.subject.course_id}}</p>
+        {%endfor%}
+
+        <p>{{d.prof_grading_own__avg}}</p>
+        <p>{{e.prof_puntuality_own__avg}}</p>
+        <p>{{f.prof_grading_own__avg}}</p>
+        <p>{{g.prof_strictness_rating_own__avg}}</p>
+        <p>{{h.prof_teaching_skill_own__avg}}</p>
+        <p>{{i.prof_enthusiasm_own__avg}}</p>
+        <p>{{j.prof_overall_own__avg}}</p>
+        
+        
+      </div>
+      <h1>own</h1>
+      <p>{{cond.prof_grading_own}}</p>
+      <p>{{cond.prof_puntuality_own}}</p>
+    
+      <p>{{cond.prof_strictness_rating_own}}</p>
+      <p>{{cond.prof_teaching_skill_own}}</p>
+      <p>{{cond.prof_enthusiasm_own}}</p>
+      <p>{{cond.prof_overall_own}}</p>
+
+      <div>
+        <form action="" method="POST">
+            {% csrf_token%}
+            <li><input type="number" name="1" placeholder="prof_grading"></li>
+            <li><input type="number" name="2" placeholder="prof_puntuality"></li>
+            <li><input type="number" name="3" placeholder="prof_strictness"></li>
+            <li><input type="number" name="4" placeholder="prof_teaching_skill"></li>
+            <li><input type="number" name="5" placeholder="prof_enthusiasm"></li>
+            <li><input type="number" name="6" placeholder="prof_overall"></li>
+            <li><input type="Submit"></li>
+            <textarea name="message" rows="15" cols="30">Your review here.</textarea>
+
+            
+        </form>
+    </div>
+    
+</div>
+</body>
+</html>

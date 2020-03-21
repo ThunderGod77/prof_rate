@@ -9,8 +9,18 @@
     <title>Document</title>
 </head>
 <body class="content">
-    {% for i in prof_subj%}
-        <li>{{i}}</li>
+    <div class="d-flex justify-content-around">
+    {% for i in a%}
+    <div class="card" style="width: 18rem;border: 2px solid blue;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/a/aa/VES_Awards_89_cropped.jpg" class="card-img-top" alt="">
+        <div class="card-body">
+          <h5 class="card-title">{{i.prof_name}}</h5>
+          <p class="card-text">Department: {{i.prof_deparment}}</p>
+          <p class="card-text">Research<br>: {{i.prof_research_interest}}</p>
+          <a href="#" class="btn btn-primary">More</a>
+        </div>
+      </div>
     {%endfor%}
+</div>
 </body>
 </html>
