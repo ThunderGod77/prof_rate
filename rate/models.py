@@ -66,12 +66,14 @@ class ProfRating(models.Model):
     
 class ProfReview(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,related_name='prof_urev')
+    prof_own=models.ForeignKey(Professors, on_delete=models.CASCADE,)
     prof_review_own=models.CharField(blank=True,max_length=200)
     prof_review_reiability=models.IntegerField(default=0)
     anonymous=models.BooleanField(default=False)
 
 class CourseReview(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,related_name='course_urev')
+    course_own=models.ForeignKey(Courses, on_delete=models.CASCADE)
     course_review_own=models.CharField(blank=True,max_length=200)
     course_review_reiability=models.IntegerField(default=0)
     anonymous=models.BooleanField(default=False)

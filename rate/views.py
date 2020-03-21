@@ -88,7 +88,8 @@ def detail(request,prof_name):
         four=request.POST['4']
         five=request.POST['5']
         six=request.POST['6']
-        print(six)
+        seven=request.POST['7']
+        print(seven)
 
         check=ProfRating.objects.filter(prof_own__prof_name=prof_name,user__username=user.username)
         if check:
@@ -111,6 +112,22 @@ def detail(request,prof_name):
             prof_own=Professors.objects.get(prof_name=prof_name)
             rating=ProfRating.objects.create(user=user,prof_own=prof_own,prof_grading_own=one,prof_puntuality_own=two,prof_strictness_rating_own=three,prof_teaching_skill_own=four,prof_enthusiasm_own=five,prof_overall_own=six)
             rating.save()
+        if seven != '':    
+            check_1=ProfReview.objects.filter(prof_own__prof_name=prof_name,user__username=user.username)
+            if check_1:
+                prof_own=check_1[0].prof_own
+                check_1[0].delete()
+                review=ProfReview.objects.create(user=user,prof_own=prof_own,prof_review_own=seven)
+                review.save()
+            else:
+                prof_own=Professors.objects.get(prof_name=prof_name)
+                review=ProfReview.objects.create(user=user,prof_own=prof_own,prof_review_own=seven)
+                review.save()
+
+
+
+
+
         return redirect('detail',prof_name=prof_name)
     else:
         prof=Professors.objects.get(prof_name=prof_name)
@@ -125,12 +142,14 @@ def detail(request,prof_name):
         h=ProfRating.objects.filter(prof_own__prof_name=prof_name).aggregate(Avg('prof_teaching_skill_own'))
         i=ProfRating.objects.filter(prof_own__prof_name=prof_name).aggregate(Avg('prof_enthusiasm_own'))
         j=ProfRating.objects.filter(prof_own__prof_name=prof_name).aggregate(Avg('prof_overall_own'))
-        
+        k=ProfReview.objects.filter(prof_own__prof_name=prof_name,user__username=user.username)
+        k=k[0]
+        print(k)
         cond=None
         if user is not None :
             cond=ProfRating.objects.filter(prof_own__prof_name=prof_name,user__username=user.username)
             if cond.exists():
-                k=0
+                kj=0
             else:
                 cond=[None]
             form_boolean=True
@@ -141,4 +160,4 @@ def detail(request,prof_name):
 
 
         
-        return render(request, 'rate/detail.html',{'a':prof,'b':b,'d':d,'e':e,'f':f,'g':g,'h':h,'i':i,'j':j,'cond':cond[0]})
+        return render(request, 'rate/detail.html',{'a':prof,'b':b,'d':d,'e':e,'f':f,'g':g,'h':h,'i':i,'j':j,'cond':cond[0],'k':k})
