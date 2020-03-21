@@ -142,6 +142,7 @@ def detail(request,prof_name):
         h=ProfRating.objects.filter(prof_own__prof_name=prof_name).aggregate(Avg('prof_teaching_skill_own'))
         i=ProfRating.objects.filter(prof_own__prof_name=prof_name).aggregate(Avg('prof_enthusiasm_own'))
         j=ProfRating.objects.filter(prof_own__prof_name=prof_name).aggregate(Avg('prof_overall_own'))
+        y=ProfReview.objects.filter(prof_own__prof_name=prof_name)
         k=ProfReview.objects.filter(prof_own__prof_name=prof_name,user__username=user.username)
         k=k[0]
         print(k)
@@ -160,4 +161,4 @@ def detail(request,prof_name):
 
 
         
-        return render(request, 'rate/detail.html',{'a':prof,'b':b,'d':d,'e':e,'f':f,'g':g,'h':h,'i':i,'j':j,'cond':cond[0],'k':k})
+        return render(request, 'rate/detail.html',{'a':prof,'b':b,'d':d,'e':e,'f':f,'g':g,'h':h,'i':i,'j':j,'cond':cond[0],'k':k,'y':y})
