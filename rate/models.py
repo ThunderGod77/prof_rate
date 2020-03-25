@@ -85,4 +85,10 @@ class Prof_to_subj(models.Model):
 
     def __str__(self):
         return self.professor.prof_name + " teaches " + self.subject.course_id 
-    
+
+class Complaints(models.Model):
+    user = models.ForeignKey(User, related_name='sample1',on_delete=models.CASCADE)
+    user_to_be_reported = models.ForeignKey(User, related_name='sample2',on_delete=models.CASCADE)
+    text=models.CharField(max_length=200)
+    review_id=models.CharField(max_length=12,blank=True,null=True)
+

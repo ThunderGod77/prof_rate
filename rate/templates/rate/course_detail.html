@@ -1,0 +1,58 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'rate/bootstrap.min.css' %}">
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body class="content">
+    <div class="">
+    
+        <h2>{{a.course_id}}</h2>
+        <p>{{a.course_description}}</p>
+        <p>{{a.course_department}}</p>
+        
+        {% for i in b%}
+        <p>{{i.professor.prof_name}}</p>
+        {%endfor%}
+
+        <p>{{d.course_difficulty_own__avg}}</p>
+        <p>{{e.course_workload_own__avg}}</p>
+        <p>{{f.course_content_rating_own__avg}}</p>
+        
+        {% for r in y%}
+        <p>{{r.course_review_own}}</p>
+        {% endfor %}
+        <p></p>
+        
+        
+      </div>
+      <h1>own</h1>
+      <p>{{cond.course_difficulty_own}}</p>
+      <p>{{cond.course_workload_own}}</p>
+    
+      <p>{{cond.course_content_rating_own}}</p>
+      
+      <p>{{k.course_review_own}}</p>
+
+      <div>
+        <form action="" method="POST">
+            {% csrf_token%}
+            <li><input type="number" name="1" placeholder="course_difficulty"></li>
+            <li><input type="number" name="2" placeholder="course_content_rating"></li>
+            <li><input type="number" name="3" placeholder="course_workload"></li>
+            
+            <li><textarea name="7" rows="15" cols="30" placeholder="your review here"></textarea></li>
+            <li><input type="Submit"></li>
+           
+
+            
+        </form>
+    </div>
+    
+</div>
+</body>
+</html>

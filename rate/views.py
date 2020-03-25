@@ -1,9 +1,16 @@
 from django.shortcuts import render,redirect
 from django.contrib import messages
-from .models import Professors,Courses,Employee,Prof_to_subj,ProfRating,ProfReview
+from .models import Professors,Courses,Employee,Prof_to_subj,ProfRating,ProfReview,CourseRating,CourseReview,Complaints
 from django.contrib.auth.models import User, auth
 from .forms import LoginForm
 from django.db.models import Avg
+from datetime import date
+from django.core.mail import send_mail
+from django.conf import settings
+from random import seed
+from random import random
+from django.core.mail import EmailMessage
+import string
 # Create your views here.
 def login(request):
     if request.method=='POST':
@@ -12,6 +19,14 @@ def login(request):
         
         user=auth.authenticate(username=username,password=password)
         if user is not None :
+            today = date.today()
+            emp=Employee.objects.get(user=user)
+            block_date=emp.block_date
+            if block_date is not None or emp.is_blocked==True:
+                block_date=emp.block_date.date()
+                if (block_date-today).days > 0 or emp.is_blocked==True :
+                    messages.info(request, "you are blocked")
+                    return redirect('login')
             auth.login(request, user)
             return redirect('/')
         else:
@@ -32,14 +47,45 @@ def register(request):
         password_repeat=request.POST['password1']
         if password != password_repeat :
             messages.info(request, 'password not same')
-            return redirect('registration')
+            return redirect('register')
+        seed(1)
+        chars = str(int(random()*100000))
+        email = EmailMessage(
+        subject='code',
+        body=chars,
+        from_email='kshitijgang76@zohomail.in',
+        to=[username],
+        reply_to=['kshitijgang76@zohomail.in'],
+        headers={'Content-Type': 'text/plain'},
+        )
+        email.send()
         user=User.objects.create_user(username=username,password=password_repeat,first_name=firstname,last_name=lastname,)
         user.save()
-        employee=Employee.objects.create(user=user,id=id_,user_photo=img_src,department=department)
+        employee=Employee.objects.create(user=user,id=id_,user_photo=img_src,department=department,is_blocked=True)
         employee.save()
-        return redirect('login')
+        auth.login(request, user)
+        return redirect('confirm')
     else :
         return render(request,'rate/register.html')
+
+def confirmation(request):
+    user=request.user
+    if request.method=="POST":
+        con=request.POST['1']
+        seed(1)
+        if con == random() :
+            employee=Employee.objects.get(user=user)
+            employee.is_blocked=False
+            employee.save()
+            auth.logout(request) 
+            return redirect('login')
+        else:
+            messages.info(request,'Did not match')
+            return redirect('confirm')
+    else:
+        return (render(request,'rate/con.html'))
+
+
         
 def logout(request):
     auth.logout(request) 
@@ -162,3 +208,103 @@ def detail(request,prof_name):
 
         
         return render(request, 'rate/detail.html',{'a':prof,'b':b,'d':d,'e':e,'f':f,'g':g,'h':h,'i':i,'j':j,'cond':cond[0],'k':k,'y':y})
+
+
+
+
+
+
+def course_detail(request,course_id):
+    user=request.user
+    if request.method=='POST':
+        one=request.POST['1']
+        two=request.POST['2']
+        three=request.POST['3']
+        
+        seven=request.POST['7']
+        print(seven)
+
+        check=CourseRating.objects.filter(course_own__course_id=course_id,user__username=user.username)
+        if check:
+            
+            course_own=check[0].course_own
+            check[0].delete()
+            rating=CourseRating.objects.create(user=user,course_own=course_own,course_difficulty_own=one,course_content_rating_own=two,course_workload_own=three)
+            rating.save()
+        else:
+            course_own=Courses.objects.get(course_id=course_id)
+            rating=CourseRating.objects.create(user=user,course_own=course_own,course_difficulty_own=one,course_content_rating_own=2,course_workload_own=3)
+            rating.save()
+        if seven != '':    
+            check_1=CourseReview.objects.filter(course_own__course_id=course_id,user__username=user.username)
+            if check_1:
+                course_own=check_1[0].course_own
+                check_1[0].delete()
+                review=CourseReview.objects.create(user=user,course_own=course_own,course_review_own=seven)
+                review.save()
+            else:
+                course_own=Courses.objects.get(course_id=course_id)
+                review=CourseReview.objects.create(user=user,course_own=course_own,course_review_own=seven)
+                review.save()
+
+
+
+
+
+        return redirect('course_detail',course_id=course_id)
+    else:
+        course=Courses.objects.get(course_id=course_id)
+        prof=Prof_to_subj.objects.filter(subject__course_id=course_id)
+        b=prof
+    
+        form_boolean=False
+        d=CourseRating.objects.filter(course_own__course_id=course_id).aggregate(Avg('course_difficulty_own'))
+        e=CourseRating.objects.filter(course_own__course_id=course_id).aggregate(Avg('course_workload_own'))
+        f=CourseRating.objects.filter(course_own__course_id=course_id).aggregate(Avg('course_content_rating_own'))
+        
+        y=CourseReview.objects.filter(course_own__course_id=course_id)
+        print(y[0])
+        k=None
+        
+        cond=None
+        if user is not None :
+            cond=CourseRating.objects.filter(course_own__course_id=course_id,user__username=user.username)
+            k=CourseReview.objects.filter(course_own__course_id=course_id,user__username=user.username)
+            print(k)
+            if k is not None :
+                k=k[0]
+            else:
+                k=[None]
+            if cond.exists():
+                kj=0
+            else: messages.info(request,'no such user')
+            
+
+
+            
+            
+
+
+        
+        return render(request, 'rate/course_detail.html',{'a':course,'b':b,'d':d,'e':e,'f':f,'cond':cond[0],'k':k,'y':y})
+
+def complaints(request):
+    user=request.user
+    if request.method=='POST':
+        user_reported=request.POST['username']
+        complaint=request.POST['text']
+        a=User.objects.get(username=user_reported)
+        if a  is None:
+            messages.info(request,'no such user')
+        else:
+            a=Complaints.objects.create(user=user,user_to_be_reported=a,text=complaint)
+            a.save()
+            messages.info(request,'succesfully registerd a complaint')
+            return redirect('complaints')
+    else:
+        return render(request, 'rate/compalaint.html')
+
+
+            
+
+
