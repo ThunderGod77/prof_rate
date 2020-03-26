@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect
 from django.contrib import messages
-from .models import Professors,Courses,Employee,Prof_to_subj,ProfRating,ProfReview,CourseRating,CourseReview,Complaints
+from .models import Professors,Courses,Employee,Prof_to_subj,ProfRating,ProfReview,CourseRating,CourseReview,Complaints,Like,Forum_message
 from django.contrib.auth.models import User, auth
 from .forms import LoginForm
 from django.db.models import Avg
@@ -11,7 +11,40 @@ from random import seed
 from random import random
 from django.core.mail import EmailMessage
 import string
+
+from datetime import datetime
 # Create your views here.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def checkmark(email,id):
+    check=False
+    if id[0:3] in ['me1','me2','cs1','cs5','mt1','mt6','ee1','ee3','ch1','ch7','ph1','bb1','ce1','tt1']:
+        pass
+    else :
+        return True
+    if email[0:9] !=  id:
+        return True
+    if len(id) != 8:
+        return True
+    return(check)
+    
+
 def login(request):
     if request.method=='POST':
         username=request.POST['username']
@@ -48,6 +81,9 @@ def register(request):
         if password != password_repeat :
             messages.info(request, 'password not same')
             return redirect('register')
+        if  checkmark(username, id_):
+            messages.info(request, 'password not same')
+            return redirect('register')
         seed(1)
         chars = str(int(random()*100000))
         email = EmailMessage(
@@ -59,11 +95,14 @@ def register(request):
         headers={'Content-Type': 'text/plain'},
         )
         email.send()
-        user=User.objects.create_user(username=username,password=password_repeat,first_name=firstname,last_name=lastname,)
-        user.save()
-        employee=Employee.objects.create(user=user,id=id_,user_photo=img_src,department=department,is_blocked=True)
-        employee.save()
-        auth.login(request, user)
+        try:
+            user=User.objects.create_user(username=username,password=password_repeat,first_name=firstname,last_name=lastname,)
+            user.save()
+            employee=Employee.objects.create(user=user,id=id_,user_photo=img_src,department=department,is_blocked=True)
+            employee.save()
+            auth.login(request, user)
+        except:
+            messages.info(request, "user already exists or some other error")
         return redirect('confirm')
     else :
         return render(request,'rate/register.html')
@@ -73,7 +112,9 @@ def confirmation(request):
     if request.method=="POST":
         con=request.POST['1']
         seed(1)
-        if con == random() :
+        lolp=str(int(random()*100000))
+        if con ==  lolp:
+            print(random())
             employee=Employee.objects.get(user=user)
             employee.is_blocked=False
             employee.save()
@@ -95,7 +136,12 @@ def logout(request):
 
 
 def index(request):
-    return render(request, 'rate/index.html')
+    user=request.user
+    prof_review=ProfReview.objects.filter(user=user)
+    course_review=CourseReview.objects.filter(user=user)
+    course_rating=CourseRating.objects.filter(user=user)
+    prof_rating=ProfRating.objects.filter(user=user)
+    return render(request, 'rate/index.html',{'a':prof_review, 'b':course_review, 'c':course_rating, 'd':prof_rating})
 
 def prof(request):
     all_prof=Professors.objects.all()
@@ -181,17 +227,25 @@ def detail(request,prof_name):
         b=subject
     
         form_boolean=False
-        d=ProfRating.objects.filter(prof_own__prof_name=prof_name).aggregate(Avg('prof_grading_own'))
-        e=ProfRating.objects.filter(prof_own__prof_name=prof_name).aggregate(Avg('prof_puntuality_own'))
-        f=ProfRating.objects.filter(prof_own__prof_name=prof_name).aggregate(Avg('prof_grading_own'))
-        g=ProfRating.objects.filter(prof_own__prof_name=prof_name).aggregate(Avg('prof_strictness_rating_own'))
-        h=ProfRating.objects.filter(prof_own__prof_name=prof_name).aggregate(Avg('prof_teaching_skill_own'))
-        i=ProfRating.objects.filter(prof_own__prof_name=prof_name).aggregate(Avg('prof_enthusiasm_own'))
-        j=ProfRating.objects.filter(prof_own__prof_name=prof_name).aggregate(Avg('prof_overall_own'))
-        y=ProfReview.objects.filter(prof_own__prof_name=prof_name)
-        k=ProfReview.objects.filter(prof_own__prof_name=prof_name,user__username=user.username)
-        k=k[0]
-        print(k)
+        try:
+            d=ProfRating.objects.filter(prof_own__prof_name=prof_name).aggregate(Avg('prof_grading_own'))
+            e=ProfRating.objects.filter(prof_own__prof_name=prof_name).aggregate(Avg('prof_puntuality_own'))
+            f=ProfRating.objects.filter(prof_own__prof_name=prof_name).aggregate(Avg('prof_grading_own'))
+            g=ProfRating.objects.filter(prof_own__prof_name=prof_name).aggregate(Avg('prof_strictness_rating_own'))
+            h=ProfRating.objects.filter(prof_own__prof_name=prof_name).aggregate(Avg('prof_teaching_skill_own'))
+            i=ProfRating.objects.filter(prof_own__prof_name=prof_name).aggregate(Avg('prof_enthusiasm_own'))
+            j=ProfRating.objects.filter(prof_own__prof_name=prof_name).aggregate(Avg('prof_overall_own'))
+        except:
+            (d,e,f,g,h,i,j)=(None,None,None,None,None,None,None)
+        try:
+            y=ProfReview.objects.filter(prof_own__prof_name=prof_name)
+            k=ProfReview.objects.filter(prof_own__prof_name=prof_name,user__username=user.username)
+            k=k[0]
+            print(k)
+        except:
+            y=None
+            k=None
+
         cond=None
         if user is not None :
             cond=ProfRating.objects.filter(prof_own__prof_name=prof_name,user__username=user.username)
@@ -258,26 +312,37 @@ def course_detail(request,course_id):
         b=prof
     
         form_boolean=False
-        d=CourseRating.objects.filter(course_own__course_id=course_id).aggregate(Avg('course_difficulty_own'))
-        e=CourseRating.objects.filter(course_own__course_id=course_id).aggregate(Avg('course_workload_own'))
-        f=CourseRating.objects.filter(course_own__course_id=course_id).aggregate(Avg('course_content_rating_own'))
+        try:
+            d=CourseRating.objects.filter(course_own__course_id=course_id).aggregate(Avg('course_difficulty_own'))
+            e=CourseRating.objects.filter(course_own__course_id=course_id).aggregate(Avg('course_workload_own'))
+            f=CourseRating.objects.filter(course_own__course_id=course_id).aggregate(Avg('course_content_rating_own'))
+        except:
+            (d,e,f)=(None,None,None)
+        try:
+            y=CourseReview.objects.filter(course_own__course_id=course_id)
+        except:
+            y=None
         
-        y=CourseReview.objects.filter(course_own__course_id=course_id)
-        print(y[0])
         k=None
-        
+        try:
+            k=CourseReview.objects.filter(course_own__course_id=course_id,user__username=user.username)
+            k=k[0]
+        except:
+            k=[None]
         cond=None
         if user is not None :
-            cond=CourseRating.objects.filter(course_own__course_id=course_id,user__username=user.username)
-            k=CourseReview.objects.filter(course_own__course_id=course_id,user__username=user.username)
-            print(k)
+            try:
+                cond=CourseRating.objects.filter(course_own__course_id=course_id,user__username=user.username)
+                a=cond[0]
+                
+            except:
+                cond=[None]
+                
             if k is not None :
-                k=k[0]
+                pass
             else:
                 k=[None]
-            if cond.exists():
-                kj=0
-            else: messages.info(request,'no such user')
+            
             
 
 
@@ -292,17 +357,43 @@ def complaints(request):
     user=request.user
     if request.method=='POST':
         user_reported=request.POST['username']
-        complaint=request.POST['text']
+        complaint=request.POST['complaint']
         a=User.objects.get(username=user_reported)
         if a  is None:
             messages.info(request,'no such user')
+            return redirect('complaints')
+        if a==user :
+            messages.info(request,'do not complain about yourself')
+            return redirect('complaints')
         else:
             a=Complaints.objects.create(user=user,user_to_be_reported=a,text=complaint)
             a.save()
             messages.info(request,'succesfully registerd a complaint')
             return redirect('complaints')
     else:
-        return render(request, 'rate/compalaint.html')
+        
+            
+        return render(request, 'rate/complaint.html')
+
+
+
+
+        
+def forum(request):
+    user=request.user
+    if request.method=='POST':
+        post=request.POST['1']
+        a=Forum_message.objects.create(user=user,text=post,post_date=datetime.now())
+        a.save()
+        return redirect('forum')
+    else:
+        messages=Forum_message.objects.order_by('post_date')
+        try:
+            a=messages[0]
+        except:
+            a=[None]
+        return render(request,'rate/forum.html',{'posts':messages})
+
 
 
             

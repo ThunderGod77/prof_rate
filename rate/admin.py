@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Courses,Professors,CourseReview,ProfReview,Prof_to_subj,ProfRating,CourseRating
+from .models import Courses,Professors,CourseReview,ProfReview,Prof_to_subj,ProfRating,CourseRating,Complaints,Employee,Like
 # Register your models here.
 
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
@@ -39,3 +39,6 @@ admin.site.register(ProfReview)
 admin.site.register(Prof_to_subj)
 admin.site.register(CourseRating)
 admin.site.register(ProfRating)
+admin.site.register(Complaints)
+admin.site.register(Employee)
+admin.site.register(Like)

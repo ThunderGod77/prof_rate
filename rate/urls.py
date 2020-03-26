@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from django.conf.urls import url
 
 
 urlpatterns=[
@@ -13,4 +14,6 @@ urlpatterns=[
     path('course/<course_id>', views.course_detail,name='course_detail'),
     path('confirm/',views.confirmation,name='confirm'),
     path('complaints/',views.complaints,name='complaints'),
+    path('forum/',views.forum,name='forum'),
+
 ]
