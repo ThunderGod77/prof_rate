@@ -38,8 +38,11 @@
         <p>Course Content : &nbsp;&nbsp;{{f.course_content_rating_own__avg}}</p>
         <h2>Course Reviews</h2>
         {% for r in y%}
+        <div class="card">
+        <p>{{r.id}}</p>
         <p>{{r.course_review_own}}</p>
-        
+       
+        </div>
         {% endfor %}
         <p></p>
         

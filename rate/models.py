@@ -92,8 +92,9 @@ class Complaints(models.Model):
     text=models.CharField(max_length=200)
     review_id=models.CharField(max_length=12,blank=True,null=True)
 
-class Like(models.Model):
+class Liker(models.Model):
     post = models.ForeignKey(CourseReview,on_delete=models.CASCADE)
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
 
 
 class Forum_message(models.Model):

@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect
 from django.contrib import messages
-from .models import Professors,Courses,Employee,Prof_to_subj,ProfRating,ProfReview,CourseRating,CourseReview,Complaints,Like,Forum_message
+from .models import Professors,Courses,Employee,Prof_to_subj,ProfRating,ProfReview,CourseRating,CourseReview,Complaints,Liker,Forum_message
 from django.contrib.auth.models import User, auth
 from .forms import LoginForm
 from django.db.models import Avg
@@ -11,14 +11,26 @@ from random import seed
 from random import random
 from django.core.mail import EmailMessage
 import string
-
+from django_ajax.decorators import ajax
 from datetime import datetime
+
+from django.http import HttpResponse
+
 # Create your views here.
 
 
 
 
+@ajax
+def my_view(request):
+    do_something()
 
+
+
+
+
+
+    
 
 
 
@@ -137,10 +149,17 @@ def logout(request):
 
 def index(request):
     user=request.user
-    prof_review=ProfReview.objects.filter(user=user)
-    course_review=CourseReview.objects.filter(user=user)
-    course_rating=CourseRating.objects.filter(user=user)
-    prof_rating=ProfRating.objects.filter(user=user)
+    print(user)
+    if user == 'AnonymousUser':
+        prof_review=ProfReview.objects.filter(user=user)
+        course_review=CourseReview.objects.filter(user=user)
+        course_rating=CourseRating.objects.filter(user=user)
+        prof_rating=ProfRating.objects.filter(user=user)
+    else:
+        prof_review=[None]
+        course_review=[None]
+        course_rating=[None]
+        prof_rating=[None]
     return render(request, 'rate/index.html',{'a':prof_review, 'b':course_review, 'c':course_rating, 'd':prof_rating})
 
 def prof(request):
@@ -158,17 +177,7 @@ def course(request,):
     
     return render(request, 'rate/course.html',{'a':a})
 
-def my_view(request):
-    login_data = request.POST.dict()
-    username = login_data.get['username']
-    password = login_data.get['password']
-    user = authenticate(request, username=username, password=password)
-    if user is not None:
-        login(request, user)
-        return render(request, 'rate/mypage.html',{'user':user})
-        
-    else:
-        return render(request,'rate/course.html')
+
         
 
 def detail(request,prof_name):

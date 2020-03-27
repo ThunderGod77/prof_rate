@@ -13,19 +13,7 @@
 <body class="content">
     <br>
     <br><br><br>
-    <footer>
-        <li><a href="{%url 'course' %}"> all courses</a></li>
-        <li><a href="{%url 'prof_info' %}">all professors</a> </li>
-        <li><a href="{%url 'index' %}">main page</a></li>
-        <li><a href="{%url 'complaints' %}">complaints</a></li>
-        <li><a href="{% url 'forum'%}">forum</a></li>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
     
-        </footer>
     {% if user.is_authenticated %}
     <a href="/logout">logout</a>
     <p>hello ,{{user.first_name}}</p>
@@ -38,7 +26,7 @@
 <br>
 <br>
 <br>
-    <div >
+    <div class="itemconfiguration " style="padding-left: 40px;">
         {% for i in posts %}
         <div class="card lol" style="width: 18rem;border: 2px solid blue;">
             {{i.user.username}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;{{i.text}}
@@ -52,16 +40,19 @@
         
         
       </div>
-      {% if user.is_authenticated %}
-      
 
-      <div class="fixed-bottom">
+      <br>
+      <br>
+      <br>
+      
+      {% if user.is_authenticated %}
+      <div class="row" style="padding-left: 40px;">
           <h2>Post</h2>
         <form action="" method="POST">
             {% csrf_token%}
             
             
-            <li><textarea name="1" rows="5" cols="100" placeholder="your review here" ></textarea></li>
+            <li><textarea name="1" rows="5" cols="100" placeholder="comments" ></textarea></li>
             <li><input type="Submit"></li>
            
 
@@ -74,6 +65,19 @@
     <br>
     <br>
     <br>
+    <footer>
+        <li><a href="{%url 'course' %}"> all courses</a></li>
+        <li><a href="{%url 'prof_info' %}">all professors</a> </li>
+        <li><a href="{%url 'index' %}">main page</a></li>
+        <li><a href="{%url 'complaints' %}">complaints</a></li>
+        <li><a href="{% url 'forum'%}">forum</a></li>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+    
+        </footer>
     
     
 </div>

@@ -15,5 +15,6 @@ urlpatterns=[
     path('confirm/',views.confirmation,name='confirm'),
     path('complaints/',views.complaints,name='complaints'),
     path('forum/',views.forum,name='forum'),
-
+    path('myview',views.my_view,name='hello'),
+   
 ]
